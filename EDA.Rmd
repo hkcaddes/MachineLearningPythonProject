@@ -1,0 +1,108 @@
+---
+title: "Housing Prices EDA"
+author: "Thomas Deegan"
+date: "August 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Housing Prices Kaggle
+
+Initial EDA
+
+```{r cars}
+library(PASWR)
+library(mice)
+
+train <- read.csv("train.csv")
+
+dim(train) #1460 x 81
+#Drop duplicative index
+train <- train[,-1] 
+
+#NA means "No" in this instance
+levels(train$Alley) <- c("Grvl","Pave","No Alley")
+train$Alley[is.na(train$Alley)] <- "No Alley"
+
+#NA means "No Basement" in this instance
+levels(train$BsmtQual) <- c("Ex","Fa","Gd","TA", "No Basement")
+train$BsmtQual[is.na(train$BsmtQual)] <- "No Basement"
+
+#NA means "No Basement" in this instance
+levels(train$BsmtCond) <- c("Fa","Gd","Po","TA", "No Basement")
+train$BsmtCond[is.na(train$BsmtCond)] <- "No Basement"
+
+#NA means "No Basement" in this instance
+levels(train$BsmtExposure) <- c("Av","Gd","Mn","No","No Basement")
+train$BsmtExposure[is.na(train$BsmtExposure)] <- "No Basement"
+
+#NA means "No Basement" in this instance
+levels(train$BsmtFinType1) <- c("ALQ", "BLQ", "GLQ", "LwQ", "Rec","Unf","No Basement")
+train$BsmtFinType1[is.na(train$BsmtFinType1)] <- "No Basement"
+
+#NA means "No Basement"" in this instance
+levels(train$BsmtFinType2) <- c("ALQ", "BLQ", "GLQ", "LwQ", "Rec","Unf","No Basement")
+train$BsmtFinType2[is.na(train$BsmtFinType2)] <- "No Basement"
+
+#NA means "No Fireplace" in this instance
+levels(train$FireplaceQu) <- c("Ex","Fa","Gd","Po","TA","No Fireplace")
+train$FireplaceQu[is.na(train$FireplaceQu)] <- "No Fireplace"
+
+#NA means "No Garage" in this instance
+levels(train$GarageType) <- c("2Types","Attchd","Basment","BuiltIn","CarPort","Detchd","No Garage")
+train$GarageType[is.na(train$GarageType)] <- "No Garage"
+
+#NA means "No Garage" in this instance
+levels(train$GarageFinish) <- c("Fin","RFn","Unf", "No Garage")
+train$GarageFinish[is.na(train$GarageFinish)] <- "No Garage"
+
+#NA means "No Garage" in this instance
+levels(train$GarageQual) <- c("Ex","Fa","Gd","Po","TA","No Garage")
+train$GarageQual[is.na(train$GarageQual)] <- "No Garage"
+
+#NA means "No Garage" in this instance
+levels(train$GarageCond) <- c("Ex","Fa","Gd","Po","TA","No Garage")
+train$GarageCond[is.na(train$GarageCond)] <- "No Garage"
+
+#NA means "No Pool" in this instance
+levels(train$PoolQC) <- c("Ex","Fa","Gd","No Pool")
+train$PoolQC[is.na(train$PoolQC)] <- "No Pool"
+
+#NA means "No Fence" in this instance
+levels(train$Fence) <- c("GdPrv","GdWo","MnPrv","MnWw","No Fence")
+train$Fence[is.na(train$Fence)] <- "No Fence"
+
+#NA means "None" in this instance
+levels(train$MiscFeature) <- c("Gar2","Othr","Shed","TenC","None")
+train$MiscFeature[is.na(train$MiscFeature)] <- "None"
+
+#Where are the NAs?
+sort(apply(train, 2, function(col)sum(is.na(col))/length(col)), decreasing = TRUE)
+
+sort(apply(train, 2, function(col)sum(is.na(col))/length(col)), decreasing = TRUE)[1:5]
+#LotFrontage [18% NA]: Linear feet of street connected to property
+#GarageYrBlt [6% NA]: Year garage was built, only NA when there's No Garage
+#MasVnrType [0.5% NA]: Masonry veneer type
+#MasVnrArea [0.5% NA]: Masonry veneer area in sq ft, only NA when MasVnrType NA
+#Electrical [0.06% NA]: Type of electrical system
+
+sort(sapply(train, sd), decreasing = TRUE)[1:8]
+#SalePrice sd: ~80k
+#LotArea sd: ~10k
+sort(sapply(train, mean), decreasing = TRUE)[1:8]
+
+model1 <- lm(SalePrice ~ LotArea + GrLivArea, data = train)
+#Adj R^2 is .5079, RSE 55730
+#RMSE 55,670
+
+model2 <- lm(SalePrice ~ LotFrontage + LotArea + GrLivArea + FullBath, data = train)
+#Adj R^2 is .5355
+#RMSE is 56,718
+
+
+```
+
+
